@@ -1,12 +1,11 @@
 import numpy as np
-import sys
+import os
 
 from colorama import Back
 import gymnasium as gym
 from gymnasium import spaces
 
 from settings import *
-
 
 class TestEnv(gym.Env):
     metadata = {"render_modes": ["ansi"]}
@@ -29,7 +28,7 @@ class TestEnv(gym.Env):
         self.action_space = spaces.Discrete(3)
 
         self.agent_actions = {
-            0: "",  # Empty Tile
+            0: " ",  # Empty Tile
             1: "X",  # Terrain Tile
             2: "C",  # Coin Tile
         }
@@ -63,23 +62,29 @@ class TestEnv(gym.Env):
     def step(self, action):
         # Map the action (element of {0,1,2}) to the tyle selected
         tile = self.agent_actions[action]
+        aux = list(self.map[self.agent_row])           
+        aux[self.agent_col] = tile
+        self.map[self.agent_row] = ''.join(aux)
 
-        if self.agent_col >= len(self.map[0]):
+        if self.agent_col >= len(self.map[0])-1:
             self.agent_row += 1
             self.agent_col = 0
         else:
             self.agent_col += 1
+
         # An episode is done iff the agent has reached the target
         terminated = True if self.agent_row >= len(self.map) else False
-        reward = 1 if terminated else 0  # Binary sparse rewards
+
         observation = {
             "agent (row,col)": (self.agent_row, self.agent_col),
             "map": self.map,
         }
-        info = self._get_info()
-
-        return observation, reward, terminated, False, info
-
+        
+        os.system('cls')
+        self.render()
+        reward = None
+        return observation, reward, terminated
+    
     def render(self):
         if self.render_mode == "ansi":
             for row_index,row_data in enumerate(self.map):
@@ -93,9 +98,15 @@ class TestEnv(gym.Env):
                     print(' |')
                 else:
                     print('|',row_data,'|')
+        print(end=Back.RESET)
 
 
-if __name__ == "__main__":
+""" if __name__ == "__main__":
     testEnv = TestEnv()
     testEnv.reset()
-    testEnv.render()
+    done = False
+    while not done:
+        done = testEnv.step(action=np.random.randint(0,3))[2] """
+    
+    
+    
