@@ -1,8 +1,9 @@
 import pygame, sys
 from level import Level
 from settings import *
-from rlenv import TestEnv
+
 from numpy.random import randint
+import numpy as np
 
 class Main:
     def __init__(self,map):
@@ -27,7 +28,20 @@ class Main:
             self.clock.tick(60)
 
 if __name__ == '__main__':
+    heigh = 11
+    width = 28
+    generator = np.random.default_rng(3134892)
+    level = np.zeros(shape=(heigh,width),dtype=int)
+    discount = 0
+    for i in range(heigh):
+        for j in range(width):
+            pick = generator.choice([0,1,2],p=[0.8*(1-discount),0.8*discount,0.2])
+            level[i][j] = pick
+        discount += 1/heigh
+    level[len(level)-3][0] = 3
+    print(level)
     main = Main(map=level_map)
     main.run()
+    
 
     

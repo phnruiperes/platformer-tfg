@@ -9,7 +9,7 @@ from gymnasium.utils.env_checker import check_env
 from settings import *
 
 
-class TestEnv(gym.Env):
+class MapEnv(gym.Env):
     metadata = {"render_modes": ["ansi"]}
 
     def __init__(self, render_mode="ansi"):
@@ -35,7 +35,7 @@ class TestEnv(gym.Env):
             2: "C",  # Coin Tile
         }
 
-        #Change % limit
+        # Change % limit
         self.change_limit = 0.4 * total_tiles
 
         # Target params
@@ -54,20 +54,38 @@ class TestEnv(gym.Env):
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
+    def random_map(self, heigh, width, seed):
+        generator = np.random.default_rng(seed)
+        level = np.zeros(shape=(heigh,width),dtype=int)
+        discount = 0
+        for i in range(heigh):
+            for j in range(width):
+                pick = generator.choice([0,1,2],p=[0.9*(1-discount),0.9*discount,0.1])
+                level[i][j] = pick
+            discount += 1/heigh
+        level[len(level)-3][0] = 3
+        return level
+
     def reset(self, seed=None, options=None):
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
-        self.map = np.array(level_map, dtype=str)
-        # Agent's starting location
-        self.agent_row = np.random.randint(0,len(self.map))
-        self.agent_col = np.random.randint(0,len(self.map[0]))
+        self.map = self.random_map(11,28,seed)
+
+        # Agent's random starting location
+        self.agent_row = np.random.randint(0, len(self.map))
+        self.agent_col = np.random.randint(0, len(self.map[0]))
 
         # Reset counts
         self.terrain_count = 0
         self.coin_count = 0
         self.modified_tiles = 0
+        for row in self.map:
+            for col in row:
+                if col == "X":
+                    self.terrain_count += 1
+                elif col == "C":
+                    self.coin_count += 1
 
-        # We will sample the target's location randomly until it does not coincide with the agent's location
         observation = {"agent_location": np.array([self.agent_row, self.agent_col])}
 
         info = {}
@@ -75,32 +93,44 @@ class TestEnv(gym.Env):
 
     def step(self, action):
         # Set angent's random location
-        self.agent_row = np.random.randint(0,len(self.map))
-        self.agent_col = np.random.randint(0,len(self.map[0]))
+        self.agent_row = np.random.randint(0, len(self.map))
+        self.agent_col = np.random.randint(0, len(self.map[0]))
 
         os.system("cls")
         self.render()
 
         # Map the action (element of {0,1,2}) to the tile selected
         tile = self.agent_actions[action]
-        aux = list(self.map[self.agent_row])
 
-        # Check if tile was modified
-        if tile != aux[self.agent_col]:
-            self.modified_tiles +=1
-        
-        if aux[self.agent_col] != "P":
+        aux = list(self.map[self.agent_row])
+        current_tile = aux[self.agent_col]
+
+        # Ignore player
+        if current_tile != "P":
             aux[self.agent_col] = tile
+
+            # Check if tile was modified and counts
+            if tile != current_tile:
+                self.modified_tiles += 1
+                if tile == "X":
+                    self.terrain_count += 1
+                elif tile == "C":
+                    self.coin_count += 1
+
+                if current_tile == "X":
+                    self.terrain_count -= 1
+                elif current_tile == "C":
+                    self.coin_count -= 1
+
         self.map[self.agent_row] = "".join(aux)
 
-        if action == 1:
-            self.terrain_count += 1
-        elif action == 2:
-            self.coin_count += 1
-
         reward = (
-            1 - abs(self.target_terrain - self.terrain_count) / self.target_terrain) * self.rewards["terrain"] + (
-            1 - abs(self.target_coins - self.coin_count) / self.target_coins) * self.rewards["coins"]
+            1 - abs(self.target_terrain - self.terrain_count) / self.target_terrain
+        ) * self.rewards["terrain"] + (
+            1 - abs(self.target_coins - self.coin_count) / self.target_coins
+        ) * self.rewards[
+            "coins"
+        ]
 
         # An episode is done if the agent has reached the change %
         terminated = True if self.modified_tiles >= self.change_limit else False
@@ -109,8 +139,15 @@ class TestEnv(gym.Env):
 
         os.system("cls")
         self.render()
-        info = {}
-        return observation, reward, terminated, info
+        info = {
+            "coins": self.coin_count,
+            "terrain": self.terrain_count,
+            "terrain target": self.target_terrain,
+            "change limit": self.change_limit,
+            "modified tiles": self.modified_tiles,
+        }
+        truncated = None
+        return observation, reward, terminated, truncated, info
 
     def render(self):
         if self.render_mode == "ansi":
@@ -129,12 +166,12 @@ class TestEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    testEnv = TestEnv()
+    """testEnv = MapEnv()
     testEnv.reset()
     done = False
     while not done:
         training = testEnv.step(action=np.random.randint(0,3))
         print(training[1])
-        done = training[2]
+        done = training[2]"""
 
-    #check_env(testEnv)
+    # check_env(testEnv)

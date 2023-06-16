@@ -1,3 +1,5 @@
 graphics
 audio
 code/__pycache__
+code/logs
+code/models
