@@ -3,13 +3,13 @@ import pygame
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos: tuple):
         super().__init__()
-        self.image = pygame.Surface((32,64))
+        self.image = pygame.Surface((36,50))
         self.image.fill('blue')
         self.rect = self.image.get_rect(topleft = pos)
 
         self.direction = pygame.math.Vector2(0,0)
-        self.speed = 8
-        self.gravity = 0.8
+        self.speed = 6
+        self.gravity = 1
         self.jump_heigh = 20
 
     def move(self):

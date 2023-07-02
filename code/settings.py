@@ -6,11 +6,11 @@ level_map = [
 '                            ',
 '                            ',
 '                            ',
-'                            ',
+'          XXX   XXX         ',
 '                            ',
 '             C              ',
-'P   XXXXXXXXXXXXXXXX  XXXX  ',
-'XXXXXXXXXXXXXXXXXXXX  XXXX  ']
+'P   XXXXXXXXXXXXXXXX    XX  ',
+'XXXXXXXXXXXXXXXXXXXX   XXX  ']
 
 TILE_SIZE=64
 COIN_SIZE=TILE_SIZE/2

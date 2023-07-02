@@ -1,24 +1,37 @@
-import gymnasium as gym
+import numpy as np
+
 from stable_baselines3 import PPO
 from rlenv import MapEnv
 
 models_dir = "models"
 
-env = MapEnv()
-env.reset()
+for change_perc in [60]:
+    for time_limit in [60]:
+        env = MapEnv(change_perc, time_limit)
+        env.reset()
 
-model_path = f"{models_dir}/1686865090/70000"
-model = PPO.load(model_path, env=env)
+        model_path = f"{models_dir}/{env.change_perc}p{env.time_limit}s/80000"
+        model = PPO.load(model_path, env=env)
 
-episodes = 1
+        maps = 20
 
-for ep in range(episodes):
-    obs, info = env.reset()
-    done = False
-    while not done:
-        action = model.predict(obs)
-        obs, reward, done, trunc, info = env.step(int(action[0]))
-        print("Reward: %7.4f" % (reward))
+        f = open(f"maps/maps_file_{env.change_perc}p{env.time_limit}s.py", "w")
+        f.write('maps = {\n')
+        f.close()
+        
+        for map in range(maps):
+            obs, info = env.reset()
+            done = False
+            while not done:
+                action = model.predict(obs)
+                obs, reward, term, trunc, info = env.step(int(action[0]))
+                done = term or trunc
 
-    print(info)
-    #Converter env.map em vetor de strings e dar append num arquivo com os mapas numerados
+            f = open(f"maps/maps_file_{env.change_perc}p{env.time_limit}s.py", "a")
+            f.write(f'    "map_{map}" : {np.ndarray.tolist(env.map)},\n')
+            f.close()
+        
+        f = open(f"maps/maps_file_{env.change_perc}p{env.time_limit}s.py", "a")
+        f.write('}')
+        f.close()
+
