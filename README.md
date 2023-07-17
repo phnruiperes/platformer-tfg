@@ -5,4 +5,4 @@ Dependências:
 
 * pygame 2.4.0
 * gymnasium 0.28.1
-* stable-baselines3 1.8.0
+* stable-baselines3 2.0.0a13
