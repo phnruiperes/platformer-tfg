@@ -28,11 +28,11 @@ class Level:
             for col_index,tile_info in enumerate(row_data):
                 x = col_index*TILE_SIZE
                 y = row_index*TILE_SIZE
-                if tile_info == 1: 
+                if tile_info == 1 or tile_info == 'X': 
                     self.tiles.add(Tile((x,y),TILE_SIZE))
-                elif tile_info == 2:
+                elif tile_info == 2 or tile_info == 'C':
                     self.coins.add(Coin((x+(TILE_SIZE-COIN_SIZE)/2,y+(TILE_SIZE-COIN_SIZE)/2),COIN_SIZE))
-                elif tile_info == 3:                   
+                elif tile_info == 3 or tile_info == 'P':                   
                     self.player.add(Player((x,y)))
     
     def reset(self):
@@ -88,6 +88,11 @@ class Level:
                         player.rect.top = sprite.rect.bottom
                         player.direction.y = 0
 
+    def coin_collect(self):
+        if self.player:
+            player = self.player.sprite
+            pygame.sprite.spritecollide(player,self.coins,True)
+            
     def render(self):
         self.tiles.update(self.shift)
         self.tiles.draw(self.surface)
@@ -100,6 +105,7 @@ class Level:
 
         self.hCollision()
         self.vCollision()
+        self.coin_collect()
         self.scroll()
 
         
