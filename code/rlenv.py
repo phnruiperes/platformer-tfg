@@ -2,6 +2,7 @@ import numpy as np
 import os
 import time
 
+from IPython.display import clear_output
 from colorama import Back
 import gymnasium as gym
 from gymnasium import spaces
@@ -15,13 +16,13 @@ class MapEnv(gym.Env):
 
     def __init__(self, change_perc, time_limit, render_mode="ansi"):
         super().__init__()
-        total_tiles = len(level_map) * len(level_map[0])
+        total_tiles = len(test_map) * len(test_map[0])
         self.time_limit = time_limit # seconds
         self.observation_space = spaces.Dict(
             {
                 "agent_location": spaces.Box(
                     low=np.array([0, 0]),
-                    high=np.array([len(level_map) - 1, len(level_map[0]) - 1]),
+                    high=np.array([len(test_map) - 1, len(test_map[0]) - 1]),
                     dtype=int,
                 ),
                 "current_tile": spaces.Discrete(n=4,start=0),
@@ -45,13 +46,10 @@ class MapEnv(gym.Env):
         # Target params
         self.target_jumps = 4
         self.target_coins = 6
-        #self.target_isles = 2
         self.target_terrain = int(0.2 * total_tiles)
 
         self.rewards = {
-            #"jumps": 20,
             "coins": 10,
-            #"isles": 0,
             "terrain": 16,
             "bad_coin": -5,
             "bad_player": -6
@@ -62,19 +60,6 @@ class MapEnv(gym.Env):
         self.time_vector = np.zeros(self.time_limit,dtype=int)
         self.reward = 0
         self.max_reward = self.rewards["coins"] + self.rewards["terrain"]
-
-        # Jump Masks
-        self.jump_masks = {
-            0: np.array([[0,0,0],
-                         [1,0,1],
-                         [1,0,1]]),
-            1: np.array([[0,0,0,0],
-                         [1,0,0,1],
-                         [1,0,0,1]]),
-            2: np.array([[0,0,0,0,0],
-                         [1,0,0,0,1],
-                         [1,0,0,0,1]])
-        }
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
@@ -134,7 +119,6 @@ class MapEnv(gym.Env):
         self.agent_row = np.random.randint(0, len(self.map))
         self.agent_col = np.random.randint(0, len(self.map[0]))
 
-        os.system("cls")
         self.render()
 
         # Map the action (element of {0,1,2}) to the tile selected
@@ -180,19 +164,8 @@ class MapEnv(gym.Env):
             self.bad_player * self.rewards["bad_player"])
 
         
-
         # An episode is done if the agent has reached the change %
         if (self.modified_tiles >= self.change_limit):
-            """ for y in range(len(self.map)-2):
-                for x in range(len(self.map[0])-2):
-                    surround = self.map[np.ix_([y,y+1,y+2],[x,x+1,x+2])]
-                    if np.array_equal(surround,self.jump_masks[0]):
-                        self.jump_count += 1
-                        x+=1
-
-            self.reward += (
-                1 - abs(self.target_jumps - self.jump_count) / self.target_jumps
-            ) * self.rewards["jumps"] """
             terminated = True 
         else:
             terminated = False
@@ -212,7 +185,7 @@ class MapEnv(gym.Env):
                        "remaining_time": self.time_vector
                        }
 
-        os.system("cls")
+        
         self.render()
 
         info = {
@@ -228,6 +201,8 @@ class MapEnv(gym.Env):
         return observation, self.reward, terminated, truncated, info
 
     def render(self):
+        clear_output(wait=True)
+        os.system("cls")
         if self.render_mode == "ansi":
             for row,row_data in enumerate(self.map):
                 print("| ",end="")
@@ -255,6 +230,7 @@ class MapEnv(gym.Env):
 
 if __name__ == "__main__":
     
+    #env tester
     """ env = MapEnv(60,60)
     env.reset()
     done = False

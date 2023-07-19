@@ -1,9 +1,7 @@
 import pygame, sys
+
 from level import Level
 from settings import *
-
-from numpy.random import randint
-import numpy as np
 
 class Main:
     def __init__(self,map):
@@ -29,9 +27,7 @@ class Main:
             pygame.display.update()
             self.clock.tick(60)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    main = Main(map=level_map)
+    main = Main(test_map)
     main.run()
-
-    

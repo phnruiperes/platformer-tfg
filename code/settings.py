@@ -1,5 +1,5 @@
 #GENERAL CONFIG
-level_map = [
+test_map = [
 '                            ',
 '                            ',
 '                            ',
@@ -15,6 +15,6 @@ level_map = [
 TILE_SIZE=64
 COIN_SIZE=TILE_SIZE/2
 WINDOW_WIDTH=1280
-WINDOW_HEIGH=len(level_map)*TILE_SIZE
+WINDOW_HEIGH=len(test_map)*TILE_SIZE
 
 
