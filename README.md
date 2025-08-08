@@ -1,5 +1,5 @@
-[![pt-br](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/phnruiperes/platformer-tfg/edit/main/README.md)
-[![pt-br](https://img.shields.io/badge/lang-pt--br-green.svg)](https://github.com/phnruiperes/platformer-tfg/edit/main/README.pt-br.md)
+[![pt-br](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/phnruiperes/platformer-tfg/blob/main/README.md)
+[![pt-br](https://img.shields.io/badge/lang-pt--br-green.svg)](https://github.com/phnruiperes/platformer-tfg/blob/main/README.pt-br.md)
 
 Bachelor's Thesis
 # 2D Game Level Generator via Reinforcement Learning
